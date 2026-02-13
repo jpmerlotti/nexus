@@ -1,0 +1,1 @@
+<x-layouts.docs :index="$index" :title="$title" :content="$content" />
