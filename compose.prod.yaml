@@ -1,0 +1,79 @@
+services:
+  app:
+    # Build from current directory
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # Always restart unless manually stopped
+    restart: always
+    # Coolify will manage ports, but this defaults for local testing
+    ports:
+      - "${APP_PORT:-8000}:80"
+    environment:
+      APP_NAME: "${APP_NAME:-Nexus}"
+      APP_ENV: production
+      APP_KEY: "${APP_KEY}"
+      APP_DEBUG: "${APP_DEBUG:-false}"
+      APP_URL: "${APP_URL}"
+      
+      DB_CONNECTION: pgsql
+      DB_HOST: "${DB_HOST:-postgres}"
+      DB_PORT: "${DB_PORT:-5432}"
+      DB_DATABASE: "${DB_DATABASE:-nexus}"
+      DB_USERNAME: "${DB_USERNAME:-nexus}"
+      DB_PASSWORD: "${DB_PASSWORD:-secret}"
+      
+      REDIS_HOST: "${REDIS_HOST:-redis}"
+      REDIS_PASSWORD: "${REDIS_PASSWORD:-null}"
+      REDIS_PORT: "${REDIS_PORT:-6379}"
+      
+      # Queue Configuration
+      QUEUE_CONNECTION: redis
+      
+      # Session & Cache
+      SESSION_DRIVER: redis
+      CACHE_STORE: redis
+      
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - nexus-network
+
+  postgres:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: "${DB_DATABASE:-nexus}"
+      POSTGRES_USER: "${DB_USERNAME:-nexus}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD:-secret}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - nexus-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-nexus}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:alpine
+    restart: always
+    volumes:
+      - redis_data:/data
+    networks:
+      - nexus-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+networks:
+  nexus-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
