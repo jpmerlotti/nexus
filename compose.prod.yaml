@@ -3,7 +3,7 @@ services:
     # Build from current directory
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: docker/Dockerfile
     # Always restart unless manually stopped
     restart: always
     # Coolify will manage ports, but this defaults for local testing
