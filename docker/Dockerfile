@@ -1,7 +1,7 @@
 FROM node:20 AS frontend
 WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm install --include=dev
+ARG NODE_OPTIONS="--max-old-space-size=4096"
+RUN rm -rf package-lock.json && npm install --include=dev
 COPY . .
 RUN npm run build -- --logLevel debug
 
