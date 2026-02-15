@@ -11,7 +11,7 @@ php artisan view:cache
 php artisan event:cache
 
 # Run migrations (Optional - only if intended to auto-migrate on deploy)
-# php artisan migrate --force
+php artisan migrate --force
 
 # Pass control to CMD (supervisord)
 exec "$@"
