@@ -10,13 +10,14 @@ RUN apk add --no-cache \
     zip \
     unzip \
     git \
+    libzip-dev \
     postgresql-dev \
     icu-dev \
     oniguruma-dev
 
 WORKDIR /var/www/html
 
-RUN docker-php-ext-install pdo_pgsql bcmath intl opcache pcntl mbstring exif
+RUN docker-php-ext-install pdo_pgsql bcmath intl opcache pcntl mbstring exif zip gd
 
 COPY . .
 # Explicitly copy build artifacts if they weren't matched by COPY . . (though they should be if not ignored)
