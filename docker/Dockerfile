@@ -2,6 +2,7 @@ FROM node:20 AS frontend
 WORKDIR /app
 ARG NODE_OPTIONS="--max-old-space-size=2048"
 COPY package.json ./
+RUN npm pkg delete optionalDependencies
 RUN npm install --include=dev
 COPY . .
 RUN npm run build -- --logLevel debug
