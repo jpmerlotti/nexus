@@ -4,11 +4,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    # Always restart unless manually stopped
     restart: always
-    # Coolify will manage ports, but this defaults for local testing
-    ports:
-      - "${APP_PORT:-8000}:80"
     environment:
       APP_NAME: "${APP_NAME:-Nexus}"
       APP_ENV: production
