@@ -3,7 +3,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm install --include=dev
 COPY . .
-RUN npm run build
+RUN npm run build -- --logLevel debug
 
 FROM php:8.4-fpm-alpine
 
