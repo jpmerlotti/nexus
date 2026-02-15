@@ -1,9 +1,7 @@
 services:
   app:
     # Build from current directory
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
+    image: ghcr.io/jpmerlotti/nexus:latest
     # Always restart unless manually stopped
     restart: always
     # Coolify will manage ports, but this defaults for local testing
