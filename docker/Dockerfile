@@ -1,17 +1,6 @@
-FROM node:20 AS frontend
-WORKDIR /app
-ARG NODE_OPTIONS="--max-old-space-size=2048"
-COPY package.json ./
-RUN npm pkg delete optionalDependencies
-RUN npm install --include=dev
-COPY . .
-RUN npm run build -- --logLevel debug
-
 FROM php:8.4-fpm-alpine
 
-WORKDIR /var/www/html
-
-# Install system dependencies
+# Install dependencies including PostgreSQL client/dev and other extensions
 RUN apk add --no-cache \
     nginx \
     supervisor \
@@ -24,34 +13,32 @@ RUN apk add --no-cache \
     icu-dev \
     oniguruma-dev
 
-# Install PHP extensions
+WORKDIR /var/www/html
+
 RUN docker-php-ext-install pdo_pgsql bcmath intl opcache pcntl mbstring exif
 
-# Install composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+COPY . .
+# Explicitly copy build artifacts if they weren't matched by COPY . . (though they should be if not ignored)
+# We can rely on COPY . . if .dockerignore allows public/build. 
+# But let's just clean up the file.
 
-# Copy configuration
-COPY docker/php/php.ini /usr/local/etc/php/conf.d/custom.ini
+COPY docker/php/php.ini /usr/local/etc/php/conf.d/app.ini
 COPY docker/nginx/default.conf /etc/nginx/http.d/default.conf
 COPY docker/supervisord.conf /etc/supervisord.conf
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 
-# Make entrypoint executable
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Copy application code   
-COPY . .
-
-# Copy built assets from frontend stage
-COPY --from=frontend /app/public/build public/build
+RUN mkdir -p /var/www/html/storage/framework/views \
+    /var/www/html/storage/framework/sessions \
+    /var/www/html/storage/framework/cache \
+    /var/www/html/storage/logs \
+    /var/www/html/bootstrap/cache \
+    && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction
-
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 775 /var/www/html/storage \
-    && chmod -R 775 /var/www/html/bootstrap/cache
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN composer install --no-dev --optimize-autoloader
 
 EXPOSE 80
 
