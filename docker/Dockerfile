@@ -2,9 +2,13 @@ FROM node:20 AS frontend
 WORKDIR /app
 ARG NODE_OPTIONS="--max-old-space-size=2048"
 COPY package.json ./
-RUN npm pkg delete optionalDependencies
 RUN npm install --include=dev
 COPY . .
+RUN echo "--- DIAGNOSTICS ---" && \
+    npm list vite || true && \
+    ls -la node_modules/.bin || true && \
+    npx vite --version || true && \
+    echo "--- END DIAGNOSTICS ---"
 RUN npm run build -- --logLevel debug
 
 FROM php:8.4-fpm-alpine
