@@ -9,6 +9,7 @@ RUN apk add --no-cache \
     libxml2-dev \
     zip \
     unzip \
+    git \
     postgresql-dev \
     icu-dev \
     oniguruma-dev
