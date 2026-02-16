@@ -11,7 +11,10 @@ php artisan view:cache
 php artisan event:cache
 
 # Run migrations (Optional - only if intended to auto-migrate on deploy)
-php artisan migrate --force
+echo "Running migrations..."
+sleep 5 # Wait for DB to be potentially ready
+php artisan migrate --force || echo "Migration failed!"
+echo "Migrations finished."
 
 # Pass control to CMD (supervisord)
 exec "$@"
