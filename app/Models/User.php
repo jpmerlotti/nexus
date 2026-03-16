@@ -27,6 +27,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'profile_photo_path',
         'two_factor_type',
+        'nex_balance',
+        'custom_api_key',
+        'ai_driver_preference',
     ];
 
     /**
@@ -51,6 +54,8 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'nex_balance' => 'integer',
+            'custom_api_key' => 'encrypted',
         ];
     }
 
@@ -68,8 +73,53 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return Str::of($this->name)
             ->explode(' ')
-            ->take(2)
             ->map(fn ($word) => Str::substr($word, 0, 1))
             ->implode('');
+    }
+
+    /**
+     * Get the campaigns owned by the user
+     */
+    public function campaigns()
+    {
+        return $this->hasMany(Campaign::class);
+    }
+
+    /**
+     * Get the characters owned by the user
+     */
+    public function characters()
+    {
+        return $this->hasMany(Character::class);
+    }
+
+    /**
+     * Get the usage logs for the user.
+     */
+    public function usageLogs()
+    {
+        return $this->hasMany(UsageLog::class);
+    }
+
+    /**
+     * Get the quests completed by the user.
+     */
+    public function completedQuests()
+    {
+        return $this->belongsToMany(Quest::class, 'user_quest')
+            ->withPivot('earned_nex', 'completed_at')
+            ->withTimestamps();
+    }
+
+    /**
+     * Check if the user has enough Nex for an action.
+     */
+    public function hasEnoughNex(int $amount = 1): bool
+    {
+        if ($this->ai_driver_preference === 'byok' && ! empty($this->custom_api_key)) {
+            return true;
+        }
+
+        return $this->nex_balance >= $amount;
     }
 }
