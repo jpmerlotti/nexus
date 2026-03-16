@@ -6,6 +6,7 @@
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../vendor/livewire/flux-pro/stubs/**/*.blade.php';
 @source '../../vendor/livewire/flux/stubs/**/*.blade.php';
+@source '../../vendor/filament/**/*.blade.php';
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -30,6 +31,54 @@
     --color-accent: #f59e0b;
     --color-accent-content: #1c1917;
     --color-accent-foreground: #ffffff;
+
+    --color-primary-50: var(--color-amber-50);
+    --color-primary-100: var(--color-amber-100);
+    --color-primary-200: var(--color-amber-200);
+    --color-primary-300: var(--color-amber-300);
+    --color-primary-400: var(--color-amber-400);
+    --color-primary-500: var(--color-amber-500);
+    --color-primary-600: var(--color-amber-600);
+    --color-primary-700: var(--color-amber-700);
+    --color-primary-800: var(--color-amber-800);
+    --color-primary-900: var(--color-amber-900);
+    --color-primary-950: var(--color-amber-950);
+
+    --color-success-50: var(--color-emerald-50);
+    --color-success-100: var(--color-emerald-100);
+    --color-success-200: var(--color-emerald-200);
+    --color-success-300: var(--color-emerald-300);
+    --color-success-400: var(--color-emerald-400);
+    --color-success-500: var(--color-emerald-500);
+    --color-success-600: var(--color-emerald-600);
+    --color-success-700: var(--color-emerald-700);
+    --color-success-800: var(--color-emerald-800);
+    --color-success-900: var(--color-emerald-900);
+    --color-success-950: var(--color-emerald-950);
+
+    --color-danger-50: var(--color-rose-50);
+    --color-danger-100: var(--color-rose-100);
+    --color-danger-200: var(--color-rose-200);
+    --color-danger-300: var(--color-rose-300);
+    --color-danger-400: var(--color-rose-400);
+    --color-danger-500: var(--color-rose-500);
+    --color-danger-600: var(--color-rose-600);
+    --color-danger-700: var(--color-rose-700);
+    --color-danger-800: var(--color-rose-800);
+    --color-danger-900: var(--color-rose-900);
+    --color-danger-950: var(--color-rose-950);
+
+    --color-warning-50: var(--color-yellow-50);
+    --color-warning-100: var(--color-yellow-100);
+    --color-warning-200: var(--color-yellow-200);
+    --color-warning-300: var(--color-yellow-300);
+    --color-warning-400: var(--color-yellow-400);
+    --color-warning-500: var(--color-yellow-500);
+    --color-warning-600: var(--color-yellow-600);
+    --color-warning-700: var(--color-yellow-700);
+    --color-warning-800: var(--color-yellow-800);
+    --color-warning-900: var(--color-yellow-900);
+    --color-warning-950: var(--color-yellow-950);
 }
 
 .bg-glass {
@@ -98,6 +147,49 @@ textarea,
     }
 }
 
+/* Magical Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(245, 158, 11, 0.3);
+    /* Soft Amber/Light */
+    border-radius: 9999px;
+    box-shadow: inset 0 0 6px rgba(245, 158, 11, 0.2);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+    background: rgba(147, 51, 234, 0.3);
+    /* Soft Purple/Dark */
+    box-shadow: inset 0 0 6px rgba(147, 51, 234, 0.2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(245, 158, 11, 0.7);
+    box-shadow: inset 0 0 10px rgba(245, 158, 11, 0.5), 0 0 20px rgba(245, 158, 11, 0.3);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+    background: rgba(147, 51, 234, 0.7);
+    box-shadow: inset 0 0 10px rgba(147, 51, 234, 0.5), 0 0 20px rgba(147, 51, 234, 0.3);
+}
+
+/* Firefox Scrollbar */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(245, 158, 11, 0.3) transparent;
+}
+
+.dark * {
+    scrollbar-color: rgba(147, 51, 234, 0.3) transparent;
+}
+
 @layer utilities {
     .animate-float {
         animation: float 6s ease-in-out infinite;
@@ -118,6 +210,7 @@ textarea,
     .bg-glass {
         @apply bg-zinc-50/60 dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-stone-800;
     }
+
 }
 
 [data-flux-field]:not(ui-radio, ui-checkbox) {
@@ -137,3 +230,14 @@ select:focus[data-flux-control] {
 /* \[:where(&)\]:size-4 {
     @apply size-4;
 } */
+
+/* Required field asterisks */
+ui-field:has([required]) [data-flux-label]::after,
+[data-flux-label][required]::after,
+label[required]::after,
+label:has(+ input[required])::after,
+label:has(+ select[required])::after,
+label:has(+ textarea[required])::after {
+    content: " *";
+    @apply text-red-500;
+}
