@@ -10,6 +10,21 @@
                 <flux:text class="truncate">{{ auth()->user()->email }}</flux:text>
             </div>
         </div>
+
+        <flux:menu.separator />
+
+        <div class="px-3 py-2">
+            <div class="flex items-center justify-between text-sm">
+                <div class="flex items-center gap-2">
+                    <x-nex-icon size="xs" :animate="false" />
+                    <span class="text-stone-500">{{ __('Nex Balance') }}</span>
+                </div>
+                <span
+                    class="font-bold text-amber-600 dark:text-amber-400 font-mono">{{ number_format(auth()->user()->nex_balance) }}
+                    NX</span>
+            </div>
+        </div>
+
         <flux:menu.separator />
         <flux:menu.radio.group>
             <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>

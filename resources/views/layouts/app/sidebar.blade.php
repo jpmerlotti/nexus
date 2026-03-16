@@ -8,6 +8,8 @@
 <body
     class="min-h-screen bg-stone-50 dark:bg-stone-950 text-stone-800 dark:text-stone-200 antialiased selection:bg-amber-500 selection:text-stone-900">
 
+    <x-notification />
+
     <!-- Background Effects -->
     <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         <div class="absolute top-0 left-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-[100px] animate-float"></div>
@@ -29,6 +31,35 @@
                     wire:navigate>
                     {{ __('Dashboard') }}
                 </flux:sidebar.item>
+                <flux:sidebar.item icon="book-open" :href="route('campaigns.index')"
+                    :current="request()->routeIs('campaigns.*')" wire:navigate>
+                    {{ __('Chronicles') }}
+                </flux:sidebar.item>
+                <flux:sidebar.item icon="users" :href="route('characters.index')"
+                    :current="request()->routeIs('characters.*')" wire:navigate>
+                    {{ __('Characters') }}
+                </flux:sidebar.item>
+            </flux:sidebar.group>
+
+            <flux:separator />
+
+            <!-- Nex Balance Monitoring -->
+            <flux:sidebar.group :heading="__('Nexus Economy')">
+                <div class="px-3 py-2">
+                    <div
+                        class="flex items-center justify-between p-3 rounded-xl bg-amber-500/5 border border-amber-500/10 group">
+                        <div class="flex items-center gap-2">
+                            <x-nex-icon size="xs" />
+                            <span
+                                class="text-xs font-serif tracking-widest text-amber-600/70 dark:text-amber-200/50 uppercase">{{ __('Saldo Nex') }}</span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <span
+                                class="text-sm font-bold text-amber-600 dark:text-amber-400 font-mono">{{ number_format(auth()->user()->nex_balance) }}</span>
+                            <span class="text-[10px] text-amber-700 dark:text-amber-500 font-bold">NX</span>
+                        </div>
+                    </div>
+                </div>
             </flux:sidebar.group>
         </flux:sidebar.nav>
 
@@ -106,6 +137,7 @@
     {{ $slot }}
 
     @fluxScripts
+    @filamentScripts
 </body>
 
 </html>

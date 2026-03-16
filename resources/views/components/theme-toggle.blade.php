@@ -18,5 +18,5 @@
             }
         }
     }" x-init="init()" x-on:click="toggle()" icon="moon" variant="subtle"
-    class="rounded-full bg-stone-200/50 dark:bg-stone-800/50 hover:bg-stone-300 dark:hover:bg-stone-700"
+    class="rounded-full bg-stone-200/50 dark:bg-stone-800/50 !mr-8 hover:bg-stone-300 dark:hover:bg-stone-700"
     aria-label="Toggle theme" x-bind:icon="darkMode ? 'moon' : 'sun'" />
