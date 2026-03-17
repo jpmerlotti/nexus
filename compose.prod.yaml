@@ -35,6 +35,16 @@ services:
       SESSION_DRIVER: redis
       CACHE_STORE: redis
       
+      # Mail Configuration (Resend via SMTP)
+      MAIL_MAILER: smtp
+      MAIL_HOST: smtp.resend.com
+      MAIL_PORT: 587
+      MAIL_USERNAME: resend
+      MAIL_PASSWORD: "${RESEND_API_KEY}"
+      MAIL_ENCRYPTION: tls
+      MAIL_FROM_ADDRESS: "${MAIL_FROM_ADDRESS:-suporte@nexus.app}"
+      MAIL_FROM_NAME: "${APP_NAME:-Nexus}"
+      
     depends_on:
       - postgres
       - redis
