@@ -1,3 +1,12 @@
+# --------- Stage 1: Build Frontend Assets ---------
+FROM node:20-alpine AS frontend-builder
+WORKDIR /app
+COPY package.json package-lock.json* ./
+RUN npm install
+COPY . .
+RUN npm run build
+
+# --------- Stage 2: Build PHP App ---------
 FROM php:8.4-fpm-alpine
 
 # Install dependencies including PostgreSQL client/dev and other extensions
@@ -24,11 +33,13 @@ RUN apk add --no-cache pcre-dev ${PHPIZE_DEPS} \
     && docker-php-ext-enable redis \
     && apk del pcre-dev ${PHPIZE_DEPS}
 
+# Copy PHP application files
 COPY . .
-# Explicitly copy build artifacts if they weren't matched by COPY . . (though they should be if not ignored)
-# We can rely on COPY . . if .dockerignore allows public/build. 
-# But let's just clean up the file.
 
+# Copy compiled frontend assets from the node builder stage
+COPY --from=frontend-builder /app/public/build ./public/build
+
+# Copy Docker configurations
 COPY docker/php/php.ini /usr/local/etc/php/conf.d/app.ini
 COPY docker/nginx/default.conf /etc/nginx/http.d/default.conf
 COPY docker/supervisord.conf /etc/supervisord.conf
@@ -36,14 +47,16 @@ COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
+# Ensure storage directories exist and are owned by www-data
 RUN mkdir -p /var/www/html/storage/framework/views \
     /var/www/html/storage/framework/sessions \
     /var/www/html/storage/framework/cache \
     /var/www/html/storage/logs \
     /var/www/html/bootstrap/cache \
-    && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+    && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chown -R www-data:www-data /var/www/html/public/build
 
-# Install PHP dependencies
+# Install PHP dependencies (Composer)
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 RUN composer install --no-dev --optimize-autoloader
 
