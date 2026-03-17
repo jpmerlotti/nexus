@@ -16,5 +16,8 @@ sleep 5 # Wait for DB to be potentially ready
 php artisan migrate --force || echo "Migration failed!"
 echo "Migrations finished."
 
+# Fix storage and cache permissions since artisan commands above were run as root
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
 # Pass control to CMD (supervisord)
 exec "$@"

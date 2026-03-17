@@ -25,7 +25,7 @@ services:
       DB_PASSWORD: "${DB_PASSWORD:-secret}"
       
       REDIS_HOST: "${REDIS_HOST:-redis}"
-      REDIS_PASSWORD: "${REDIS_PASSWORD:-null}"
+      REDIS_PASSWORD: "${REDIS_PASSWORD:-}"
       REDIS_PORT: "${REDIS_PORT:-6379}"
       
       # Queue Configuration
