@@ -19,6 +19,11 @@ WORKDIR /var/www/html
 
 RUN docker-php-ext-install pdo_pgsql bcmath intl opcache pcntl mbstring exif zip gd
 
+RUN apk add --no-cache pcre-dev ${PHPIZE_DEPS} \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
+    && apk del pcre-dev ${PHPIZE_DEPS}
+
 COPY . .
 # Explicitly copy build artifacts if they weren't matched by COPY . . (though they should be if not ignored)
 # We can rely on COPY . . if .dockerignore allows public/build. 
