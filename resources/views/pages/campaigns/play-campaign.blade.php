@@ -202,64 +202,58 @@ new #[Title('Campaign Play')] #[Layout('layouts.campaign')] class extends Compon
 }; ?>
 
 <div class="flex h-screen overflow-hidden bg-stone-900 text-stone-100 relative" 
-     x-data="campaignPlay"
+     x-data="{
+        mobileMenuOpen: false,
+        activePanel: @entangle('activePanel'),
+        currentChannel: @entangle('currentChannel'),
+        commandPaletteOpen: false,
+        commandIndex: 0,
+        commands: [
+            { name: '/roll', desc: 'Rola dados de RPG (ex: 1d20+5)', syntax: '/roll ' },
+            { name: '/help', desc: 'Mostra ajuda sobre o Nexus', syntax: '/help' },
+            { name: '/session', desc: 'Configurações de sessão', syntax: '/session ' },
+            { name: 'Começar', desc: 'Inicia a narrativa oficial', syntax: 'Começar' }
+        ],
+        get filteredCommands() {
+            const val = (this.$wire.newMessage || '').toLowerCase();
+            if (val.startsWith('/')) {
+                return this.commands.filter(c => c.name.toLowerCase().startsWith(val));
+            }
+            if (val.length > 0) {
+                return this.commands.filter(c => c.name.toLowerCase().includes(val));
+            }
+            return [];
+        },
+        init() {
+            this.$watch('filteredCommands', (val) => { 
+                this.commandPaletteOpen = val.length > 0 && (this.$wire.newMessage || '').length > 0 
+            });
+            this.$nextTick(() => { this.scrollToBottom(); });
+        },
+        selectCommand(cmd) {
+            this.$wire.newMessage = cmd.syntax;
+            this.commandPaletteOpen = false;
+            this.commandIndex = 0;
+            this.$nextTick(() => this.$refs.chatInput.focus());
+        },
+        scrollToBottom() {
+            const chat = this.$refs.chatContainer;
+            if (chat) {
+                setTimeout(() => { chat.scrollTop = chat.scrollHeight; }, 50);
+            }
+        },
+        switchTool(panelId, channel = null) {
+            if (channel) {
+                this.currentChannel = channel;
+                this.activePanel = 'chat';
+            } else {
+                this.activePanel = panelId;
+            }
+            this.mobileMenuOpen = false;
+            this.scrollToBottom();
+        }
+     }"
      @chat-updated.window="scrollToBottom()">
-
-    <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('campaignPlay', () => ({
-                mobileMenuOpen: false,
-                activePanel: @entangle('activePanel'),
-                currentChannel: @entangle('currentChannel'),
-                commandPaletteOpen: false,
-                commandIndex: 0,
-                commands: [
-                    { name: '/roll', desc: 'Rola dados de RPG (ex: 1d20+5)', syntax: '/roll ' },
-                    { name: '/help', desc: 'Mostra ajuda sobre o Nexus', syntax: '/help' },
-                    { name: '/session', desc: 'Configurações de sessão', syntax: '/session ' },
-                    { name: 'Começar', desc: 'Inicia a narrativa oficial', syntax: 'Começar' }
-                ],
-                get filteredCommands() {
-                    const val = (this.$wire.newMessage || '').toLowerCase();
-                    if (val.startsWith('/')) {
-                        return this.commands.filter(c => c.name.toLowerCase().startsWith(val));
-                    }
-                    if (val.length > 0) {
-                        return this.commands.filter(c => c.name.toLowerCase().includes(val));
-                    }
-                    return [];
-                },
-                init() {
-                    this.$watch('filteredCommands', (val) => { 
-                        this.commandPaletteOpen = val.length > 0 && (this.$wire.newMessage || '').length > 0 
-                    });
-                    this.$nextTick(() => { this.scrollToBottom(); });
-                },
-                selectCommand(cmd) {
-                    this.$wire.newMessage = cmd.syntax;
-                    this.commandPaletteOpen = false;
-                    this.commandIndex = 0;
-                    this.$nextTick(() => this.$refs.chatInput.focus());
-                },
-                scrollToBottom() {
-                    const chat = this.$refs.chatContainer;
-                    if (chat) {
-                        setTimeout(() => { chat.scrollTop = chat.scrollHeight; }, 50);
-                    }
-                },
-                switchTool(panelId, channel = null) {
-                    if (channel) {
-                        this.currentChannel = channel;
-                        this.activePanel = 'chat';
-                    } else {
-                        this.activePanel = panelId;
-                    }
-                    this.mobileMenuOpen = false;
-                    this.scrollToBottom();
-                }
-            }))
-        })
-    </script>
 
     <style>
         [x-cloak] { display: none !important; }
@@ -354,7 +348,8 @@ new #[Title('Campaign Play')] #[Layout('layouts.campaign')] class extends Compon
     </aside>
 
     <!-- Main Content (Chat Central) -->
-    <main class="flex-1 flex flex-col h-full relative z-10 min-w-0" x-show="activePanel === 'chat'" x-transition>
+    <main class="flex-1 flex flex-col h-full relative z-10 min-w-0" 
+          :class="!['chat', 'meta'].includes(activePanel) ? 'max-lg:hidden' : ''">
         <!-- Mobile Header -->
         <header class="main-content-mobile-header items-center justify-between p-4 border-b border-white/10 bg-black/60 backdrop-blur-md">
             <div class="font-bold truncate font-serif text-amber-500">{{ $campaign?->title ?? 'O Reino de Nexus' }}</div>
@@ -500,8 +495,8 @@ new #[Title('Campaign Play')] #[Layout('layouts.campaign')] class extends Compon
     </main>
 
     <!-- Right Sidebar (Context Panel) - UNIFIED FOR DESKTOP AND MOBILE -->
-    <aside class="flex-col w-80 lg:w-96 border-l border-white/10 bg-stone-950 lg:bg-black/60 lg:backdrop-blur-2xl z-[100] lg:z-20 shadow-2xl shrink-0 transition-transform duration-300"
-           :class="activePanel !== 'chat' ? 'fixed inset-0 lg:static lg:flex' : 'hidden lg:flex'">
+    <aside class="flex flex-col w-80 lg:w-96 border-l border-white/10 bg-stone-950 lg:bg-black/60 lg:backdrop-blur-2xl z-[80] lg:z-20 shadow-2xl shrink-0"
+           :class="!['chat', 'meta'].includes(activePanel) ? 'max-lg:fixed max-lg:inset-0' : 'max-lg:hidden'">
         
         <!-- Desktop Header -->
         <div class="hidden lg:flex p-5 font-bold border-b border-white/5 bg-black/20 items-center justify-between">
