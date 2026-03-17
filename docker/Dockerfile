@@ -1,5 +1,5 @@
 # --------- Stage 1: Build Frontend Assets ---------
-FROM node:20-alpine AS frontend-builder
+FROM node:20-bookworm-slim AS frontend-builder
 WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm install
